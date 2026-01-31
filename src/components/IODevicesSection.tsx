@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { Keyboard, Mouse, MonitorPlay, Printer } from "lucide-react";
+import { Keyboard, Mouse, MonitorPlay, Printer, Mic, Camera, Video, Gamepad2, ScanBarcode, Fingerprint, PenTool, CircleDot, Volume2, Tv, Headphones } from "lucide-react";
 import { DeviceCard } from "./DeviceCard";
 
 import keyboardImage from "@/assets/devices/keyboard.png";
@@ -8,6 +8,20 @@ import mouseImage from "@/assets/devices/mouse.png";
 import monitorImage from "@/assets/devices/monitor.png";
 import printerImage from "@/assets/devices/printer.png";
 import scannerImage from "@/assets/devices/scanner.png";
+import touchscreenImage from "@/assets/devices/touchscreen.png";
+import joystickImage from "@/assets/devices/joystick.png";
+import barcodeReaderImage from "@/assets/devices/barcode-reader.png";
+import microphoneImage from "@/assets/devices/microphone.png";
+import webcamImage from "@/assets/devices/webcam.png";
+import digitalCameraImage from "@/assets/devices/digital-camera.png";
+import trackballImage from "@/assets/devices/trackball.png";
+import lightPenImage from "@/assets/devices/light-pen.png";
+import omrImage from "@/assets/devices/omr.png";
+import graphicsTabletImage from "@/assets/devices/graphics-tablet.png";
+import speakersImage from "@/assets/devices/speakers.png";
+import plotterImage from "@/assets/devices/plotter.png";
+import projectorImage from "@/assets/devices/projector.png";
+import headphonesImage from "@/assets/devices/headphones.png";
 
 const inputDevices = [
   {
@@ -47,7 +61,137 @@ const inputDevices = [
       "Photo Scanning",
       "Multi-page Feeding",
     ],
-    icon: MonitorPlay,
+    icon: ScanBarcode,
+  },
+  {
+    name: "Touch Screen",
+    image: touchscreenImage,
+    shortDescription: "Display that detects finger or stylus touch for direct interaction with visual elements.",
+    howItWorks: "Capacitive screens detect electrical changes when touched. Resistive screens use pressure. Controller calculates touch coordinates and sends to processor.",
+    functionalities: [
+      "Direct Interaction",
+      "Multi-touch Gestures",
+      "Pinch to Zoom",
+      "Handwriting Input",
+    ],
+    icon: Fingerprint,
+  },
+  {
+    name: "Light Pen",
+    image: lightPenImage,
+    shortDescription: "Pointing device that detects light from CRT display to determine screen position.",
+    howItWorks: "Contains photocell that detects electron beam scanning the screen. Timing of detection relative to refresh cycle determines position coordinates.",
+    functionalities: [
+      "Direct Screen Drawing",
+      "CAD Applications",
+      "Menu Selection",
+      "Graphics Design",
+    ],
+    icon: PenTool,
+  },
+  {
+    name: "Joystick",
+    image: joystickImage,
+    shortDescription: "Directional input device primarily used for gaming, simulations, and industrial control.",
+    howItWorks: "Potentiometers or Hall effect sensors detect stick position. Movement along X/Y axes generates analog signals converted to digital coordinates.",
+    functionalities: [
+      "Gaming Control",
+      "Flight Simulation",
+      "Robotic Control",
+      "CAD Navigation",
+    ],
+    icon: Gamepad2,
+  },
+  {
+    name: "Trackball",
+    image: trackballImage,
+    shortDescription: "Stationary pointing device where user rotates a ball to control cursor movement.",
+    howItWorks: "Ball rotation is detected by optical sensors or rollers. Movement is translated to cursor coordinates without moving the device itself.",
+    functionalities: [
+      "Precision Pointing",
+      "Limited Space Usage",
+      "Ergonomic Control",
+      "CAD/Graphics Work",
+    ],
+    icon: CircleDot,
+  },
+  {
+    name: "Barcode Reader",
+    image: barcodeReaderImage,
+    shortDescription: "Scans and decodes product barcodes using laser or LED light reflection.",
+    howItWorks: "Laser/LED beam scans barcode. Light reflected from white bars and absorbed by black bars creates pattern. Decoder translates pattern to digits.",
+    functionalities: [
+      "Product Identification",
+      "Inventory Management",
+      "Point of Sale",
+      "Asset Tracking",
+    ],
+    icon: ScanBarcode,
+  },
+  {
+    name: "OMR (Optical Mark Reader)",
+    image: omrImage,
+    shortDescription: "Reads pencil marks on specially designed forms like exam answer sheets.",
+    howItWorks: "Light shines on paper. Marked areas reflect less light. Sensors detect contrast differences between marked and unmarked areas to read data.",
+    functionalities: [
+      "Exam Grading",
+      "Survey Processing",
+      "Lottery Tickets",
+      "Attendance Sheets",
+    ],
+    icon: ScanBarcode,
+  },
+  {
+    name: "Digital Camera",
+    image: digitalCameraImage,
+    shortDescription: "Captures images using CCD/CMOS sensors and stores them digitally.",
+    howItWorks: "Light passes through lens onto image sensor. Millions of photosites convert light to electrical signals. ADC creates digital pixel data stored in memory.",
+    functionalities: [
+      "Photo Capture",
+      "Video Recording",
+      "Image Preview",
+      "Zoom Functions",
+    ],
+    icon: Camera,
+  },
+  {
+    name: "Microphone",
+    image: microphoneImage,
+    shortDescription: "Converts sound waves into electrical signals for audio input.",
+    howItWorks: "Sound waves cause diaphragm to vibrate. Movement creates electrical current variations in coil (dynamic) or capacitance changes (condenser).",
+    functionalities: [
+      "Voice Recording",
+      "Video Conferencing",
+      "Voice Commands",
+      "Music Production",
+    ],
+    icon: Mic,
+  },
+  {
+    name: "Webcam",
+    image: webcamImage,
+    shortDescription: "Real-time video input device for conferencing and streaming.",
+    howItWorks: "CMOS sensor captures continuous video frames. Built-in processor compresses video data. USB interface streams data to computer in real-time.",
+    functionalities: [
+      "Video Calls",
+      "Live Streaming",
+      "Security Monitoring",
+      "Face Recognition",
+    ],
+    icon: Video,
+  },
+  {
+    name: "Graphics Tablet",
+    image: graphicsTabletImage,
+    shortDescription: "Pressure-sensitive drawing surface with stylus for digital art creation.",
+    howItWorks: "Electromagnetic grid detects stylus position. Pressure sensors measure pen force. Data translates to precise cursor movement and brush effects.",
+    functionalities: [
+      "Digital Drawing",
+      "Photo Editing",
+      "Signature Capture",
+      "3D Sculpting",
+    ],
+    icon: PenTool,
   },
 ];
 
@@ -78,26 +222,58 @@ const outputDevices = [
     ],
     icon: Printer,
   },
-];
-
-const otherInputDevices = [
-  { name: "Touch Screen", desc: "Combines display and input; detects finger/stylus position" },
-  { name: "Light Pen", desc: "Detects light from CRT to determine screen position" },
-  { name: "Joystick", desc: "Directional input for gaming and flight simulators" },
-  { name: "Trackball", desc: "Stationary mouse alternative; ball rolled by fingers" },
-  { name: "Barcode Reader", desc: "Scans and decodes product barcodes using laser/LED" },
-  { name: "OMR", desc: "Optical Mark Recognition for bubble sheet scanning" },
-  { name: "OCR", desc: "Converts printed/handwritten text to digital text" },
-  { name: "Digital Camera", desc: "Captures images using CCD/CMOS sensors" },
-  { name: "Microphone", desc: "Converts sound waves to electrical signals" },
-  { name: "Webcam", desc: "Real-time video input for conferencing" },
-];
-
-const otherOutputDevices = [
-  { name: "Speakers", desc: "Convert electrical signals to sound waves" },
-  { name: "Plotter", desc: "Draws vector graphics for CAD/engineering drawings" },
-  { name: "Projector", desc: "Projects enlarged image onto screen/wall" },
-  { name: "Headphones", desc: "Personal audio output worn on ears" },
+  {
+    name: "Speakers",
+    image: speakersImage,
+    shortDescription: "Convert electrical audio signals into sound waves for listening.",
+    howItWorks: "Electrical signals pass through voice coil creating magnetic field. Coil moves diaphragm back and forth, pushing air to create sound waves.",
+    functionalities: [
+      "Audio Playback",
+      "Stereo Sound",
+      "Bass Enhancement",
+      "Volume Control",
+    ],
+    icon: Volume2,
+  },
+  {
+    name: "Plotter",
+    image: plotterImage,
+    shortDescription: "Draws high-quality vector graphics for CAD, engineering, and architectural drawings.",
+    howItWorks: "Pen or inkjet head moves on X-Y axis. Computer sends coordinates for continuous lines. Creates precise technical drawings larger than standard printers.",
+    functionalities: [
+      "Large Format Output",
+      "Vector Graphics",
+      "Technical Drawings",
+      "Blueprint Printing",
+    ],
+    icon: PenTool,
+  },
+  {
+    name: "Projector",
+    image: projectorImage,
+    shortDescription: "Projects enlarged digital images onto screen or wall for presentations.",
+    howItWorks: "Light source passes through LCD/DLP chip. Lens system enlarges and focuses image. Projection throws light onto reflective surface creating visible display.",
+    functionalities: [
+      "Large Display Output",
+      "Presentations",
+      "Home Theater",
+      "Classroom Teaching",
+    ],
+    icon: Tv,
+  },
+  {
+    name: "Headphones",
+    image: headphonesImage,
+    shortDescription: "Personal audio output device worn on or over the ears.",
+    howItWorks: "Small speakers (drivers) convert electrical signals to sound. Ear cups or buds direct sound into ear canal. May include noise cancellation technology.",
+    functionalities: [
+      "Private Listening",
+      "Noise Isolation",
+      "Portable Audio",
+      "Gaming Communication",
+    ],
+    icon: Headphones,
+  },
 ];
 
 export function IODevicesSection() {
@@ -134,23 +310,10 @@ export function IODevicesSection() {
             </div>
             Input Devices
           </h3>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {inputDevices.map((device, index) => (
-              <DeviceCard key={device.name} {...device} delay={index * 0.1} />
+              <DeviceCard key={device.name} {...device} delay={index * 0.05} />
             ))}
-          </div>
-
-          {/* Other Input Devices List */}
-          <div className="bg-card rounded-2xl p-6 shadow-card">
-            <h4 className="font-semibold mb-4">Other Input Devices</h4>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
-              {otherInputDevices.map((device) => (
-                <div key={device.name} className="p-3 rounded-lg bg-muted hover:bg-primary/10 transition-colors">
-                  <p className="font-medium text-sm">{device.name}</p>
-                  <p className="text-xs text-muted-foreground">{device.desc}</p>
-                </div>
-              ))}
-            </div>
           </div>
         </motion.div>
 
@@ -166,23 +329,10 @@ export function IODevicesSection() {
             </div>
             Output Devices
           </h3>
-          <div className="grid sm:grid-cols-2 gap-6 mb-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {outputDevices.map((device, index) => (
-              <DeviceCard key={device.name} {...device} delay={index * 0.1} />
+              <DeviceCard key={device.name} {...device} delay={index * 0.05} />
             ))}
-          </div>
-
-          {/* Other Output Devices List */}
-          <div className="bg-card rounded-2xl p-6 shadow-card">
-            <h4 className="font-semibold mb-4">Other Output Devices</h4>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {otherOutputDevices.map((device) => (
-                <div key={device.name} className="p-3 rounded-lg bg-muted hover:bg-secondary/10 transition-colors">
-                  <p className="font-medium text-sm">{device.name}</p>
-                  <p className="text-xs text-muted-foreground">{device.desc}</p>
-                </div>
-              ))}
-            </div>
           </div>
         </motion.div>
       </div>
