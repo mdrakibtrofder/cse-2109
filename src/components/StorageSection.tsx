@@ -1,12 +1,14 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { HardDrive, Database, Layers } from "lucide-react";
+import { HardDrive, Database, Layers, Disc, Save } from "lucide-react";
 import { DeviceCard } from "./DeviceCard";
 
 import hddImage from "@/assets/devices/hdd.png";
 import ssdImage from "@/assets/devices/ssd.png";
 import usbDriveImage from "@/assets/devices/usb-drive.png";
 import ramImage from "@/assets/devices/ram.png";
+import opticalDiscImage from "@/assets/devices/optical-disc.png";
+import magneticTapeImage from "@/assets/devices/magnetic-tape.png";
 
 const storageDevices = [
   {
@@ -49,6 +51,19 @@ const storageDevices = [
     icon: Database,
   },
   {
+    name: "RAM (Random Access Memory)",
+    image: ramImage,
+    shortDescription: "Volatile primary memory for temporary data storage during program execution.",
+    howItWorks: "DRAM stores data in capacitors that need constant refresh. SRAM uses flip-flops for faster, stable storage. CPU accesses any location directly without sequential reading.",
+    functionalities: [
+      "Fast Data Access",
+      "Program Loading",
+      "Working Memory",
+      "Virtual Memory Support",
+    ],
+    icon: Layers,
+  },
+  {
     name: "Cache Memory",
     image: ramImage,
     shortDescription: "Ultra-fast SRAM between CPU and main memory to reduce access latency.",
@@ -61,26 +76,44 @@ const storageDevices = [
     ],
     icon: Layers,
   },
-];
-
-const memoryTypes = [
   {
-    category: "Primary Memory",
-    types: [
-      { name: "RAM (DRAM)", desc: "Dynamic RAM - needs refresh, used for main memory" },
-      { name: "ROM", desc: "Read-Only Memory - permanent, stores BIOS/firmware" },
-      { name: "SRAM", desc: "Static RAM - faster, used in cache, no refresh needed" },
-      { name: "Cache", desc: "High-speed buffer between CPU and RAM" },
+    name: "Optical Disc (CD/DVD/Blu-ray)",
+    image: opticalDiscImage,
+    shortDescription: "Removable media using laser technology to read/write data on reflective surface.",
+    howItWorks: "Laser reads pits and lands on disc surface. Light reflection differences create binary patterns. CD uses 780nm laser, DVD 650nm, Blu-ray 405nm for higher density.",
+    functionalities: [
+      "Media Distribution",
+      "Data Archival",
+      "Movie Playback",
+      "Software Installation",
     ],
+    icon: Disc,
   },
   {
-    category: "Secondary Memory",
-    types: [
-      { name: "Hard Disk (HDD)", desc: "Magnetic platters, high capacity, slower" },
-      { name: "SSD", desc: "Flash memory, fast, reliable, expensive per GB" },
-      { name: "Optical Discs", desc: "CD, DVD, Blu-ray - laser read/write technology" },
-      { name: "Magnetic Tape", desc: "Sequential access, archival/backup storage" },
+    name: "Magnetic Tape",
+    image: magneticTapeImage,
+    shortDescription: "Sequential access storage medium for long-term archival and backup purposes.",
+    howItWorks: "Magnetic tape winds between reels. Read/write head magnetizes tape surface in patterns. Sequential access means reading data in order from start to end.",
+    functionalities: [
+      "Backup Storage",
+      "Archival Storage",
+      "High Capacity",
+      "Low Cost per GB",
     ],
+    icon: Save,
+  },
+  {
+    name: "ROM (Read-Only Memory)",
+    image: ramImage,
+    shortDescription: "Non-volatile memory that retains data permanently, storing firmware and BIOS.",
+    howItWorks: "Data is written during manufacturing (mask ROM) or one-time programming (PROM). EPROM can be erased with UV light, EEPROM electrically. Retains data without power.",
+    functionalities: [
+      "BIOS Storage",
+      "Firmware Storage",
+      "Boot Instructions",
+      "Permanent Programs",
+    ],
+    icon: Database,
   },
 ];
 
@@ -118,34 +151,9 @@ export function StorageSection() {
         {/* Storage Device Cards */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {storageDevices.map((device, index) => (
-            <DeviceCard key={device.name} {...device} delay={index * 0.1} />
+            <DeviceCard key={device.name} {...device} delay={index * 0.05} />
           ))}
         </div>
-
-        {/* Memory Types */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mb-16"
-        >
-          <h3 className="heading-3 mb-8 text-center">Memory Types & Purposes</h3>
-          <div className="grid md:grid-cols-2 gap-6">
-            {memoryTypes.map((category) => (
-              <div key={category.category} className="bg-card rounded-2xl p-6 shadow-card">
-                <h4 className="font-semibold text-lg mb-4 text-primary">{category.category}</h4>
-                <div className="space-y-3">
-                  {category.types.map((type) => (
-                    <div key={type.name} className="p-3 rounded-lg bg-muted">
-                      <p className="font-medium">{type.name}</p>
-                      <p className="text-sm text-muted-foreground">{type.desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
 
         {/* Storage Hierarchy */}
         <motion.div
