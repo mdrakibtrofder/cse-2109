@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
-    base: "/cse-2109/",
+    base: "/computer-fundamentals/",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
