@@ -170,27 +170,56 @@ function digitChar(n: number): string {
   return n >= 10 ? HEX_REV[n] : String(n);
 }
 
-// Decimal → any base via repeated division
+// Decimal → any base via repeated division (integer) and repeated multiplication (fractional)
 function decimalToBaseSteps(decimal: number, base: number, baseName: string): { steps: ConversionStep[]; result: string } {
   if (decimal === 0) return { steps: [{ description: "0 in decimal is 0 in any base." }], result: "0" };
+
   const steps: ConversionStep[] = [];
-  let n = decimal;
-  const remainders: string[] = [];
-  let step = 1;
-  while (n > 0) {
-    const quotient = Math.floor(n / base);
-    const remainder = n % base;
-    const remChar = digitChar(remainder);
-    steps.push({
-      description: `Step ${step}: ${n} ÷ ${base} = ${quotient}  remainder ${remChar}${remainder >= 10 ? ` (${remainder})` : ""}`,
-    });
-    remainders.push(remChar);
-    n = quotient;
-    step++;
+  const integerPart = Math.floor(decimal);
+  const fractionalPart = decimal - integerPart;
+
+  // 1. Integer Part
+  let n = integerPart;
+  const intRemainders: string[] = [];
+  if (n === 0) {
+    intRemainders.push("0");
+  } else {
+    steps.push({ description: `--- Integer Part (${integerPart}) ---` });
+    while (n > 0) {
+      const quotient = Math.floor(n / base);
+      const remainder = n % base;
+      const remChar = digitChar(remainder);
+      steps.push({
+        description: `${n} ÷ ${base} = ${quotient}  remainder ${remChar}${remainder >= 10 ? ` (${remainder})` : ""}`,
+      });
+      intRemainders.push(remChar);
+      n = quotient;
+    }
   }
-  const result = remainders.reverse().join("");
+  const intResult = intRemainders.reverse().join("");
+
+  // 2. Fractional Part
+  let fracResult = "";
+  if (fractionalPart > 0) {
+    steps.push({ description: `--- Fractional Part (${fractionalPart.toFixed(10).replace(/\.?0+$/, "")}) ---` });
+    let f = fractionalPart;
+    let limit = 10; // Limit to 10 fractional digits to avoid infinite loops
+    while (f > 0 && limit > 0) {
+      const product = f * base;
+      const digit = Math.floor(product);
+      const digitCh = digitChar(digit);
+      steps.push({
+        description: `${f.toFixed(4)} × ${base} = ${product.toFixed(4)} → digit ${digitCh}`,
+      });
+      fracResult += digitCh;
+      f = product - digit;
+      limit--;
+    }
+  }
+
+  const result = fracResult ? `${intResult}.${fracResult}` : intResult;
   steps.push({
-    description: `Read remainders bottom → top`,
+    description: `Combined Result`,
     highlight: result,
   });
   return { steps, result };
@@ -198,86 +227,177 @@ function decimalToBaseSteps(decimal: number, base: number, baseName: string): { 
 
 // Any base → Decimal via positional multiplication
 function baseToDecimalSteps(value: string, base: number, baseName: string): { steps: ConversionStep[]; result: string } {
-  const digits = value.toUpperCase().split("");
-  const len = digits.length;
+  const [intStr, fracStr] = value.split(".");
   const steps: ConversionStep[] = [];
   const terms: string[] = [];
   let total = 0;
-  digits.forEach((d, i) => {
-    const power = len - 1 - i;
+
+  // 1. Integer Part
+  const intDigits = intStr.toUpperCase().split("");
+  intDigits.forEach((d, i) => {
+    const power = intDigits.length - 1 - i;
     const val = digitValue(d);
     const contribution = val * Math.pow(base, power);
     terms.push(`${d}×${base}^${power}=${contribution}`);
     total += contribution;
   });
+
+  // 2. Fractional Part
+  if (fracStr) {
+    const fracDigits = fracStr.toUpperCase().split("");
+    fracDigits.forEach((d, i) => {
+      const power = -(i + 1);
+      const val = digitValue(d);
+      const contribution = val * Math.pow(base, power);
+      // Format contribution to avoid too many decimals in the step description
+      const formattedContrib = contribution.toFixed(6).replace(/\.?0+$/, "");
+      terms.push(`${d}×${base}^(${power})=${formattedContrib}`);
+      total += contribution;
+    });
+  }
+
   steps.push({ description: `Position values: ${terms.join("  +  ")}` });
-  steps.push({ description: `Sum: ${total}`, highlight: String(total) });
-  return { steps, result: String(total) };
+  // Final total formatting to avoid precision artifacts like 0.30000000000000004
+  const finalResult = String(Number(total.toFixed(10)));
+  steps.push({ description: `Sum: ${finalResult}`, highlight: finalResult });
+  return { steps, result: finalResult };
 }
 
 // Binary ↔ Octal grouping
 function binaryToOctalSteps(binary: string): { steps: ConversionStep[]; result: string } {
-  let padded = binary;
-  while (padded.length % 3 !== 0) padded = "0" + padded;
-  const groups: string[] = [];
-  const octalDigits: string[] = [];
-  for (let i = 0; i < padded.length; i += 3) {
-    const group = padded.substring(i, i + 3);
-    groups.push(group);
-    octalDigits.push(String(parseInt(group, 2)));
+  const [intPart, fracPart] = binary.split(".");
+  const steps: ConversionStep[] = [];
+
+  // 1. Integer Part
+  let intPadded = intPart;
+  while (intPadded.length % 3 !== 0) intPadded = "0" + intPadded;
+  const intGroups: string[] = [];
+  const intOctals: string[] = [];
+  for (let i = 0; i < intPadded.length; i += 3) {
+    const group = intPadded.substring(i, i + 3);
+    intGroups.push(group);
+    intOctals.push(String(parseInt(group, 2)));
   }
-  const result = octalDigits.join("");
-  const steps: ConversionStep[] = [
-    { description: `Pad binary to multiple of 3 bits: ${padded}` },
-    { description: `Group from right in 3s: ${groups.join(" | ")}` },
-    { description: `Convert each group: ${groups.map((g, i) => `${g}→${octalDigits[i]}`).join(", ")}` },
-    { description: `Result`, highlight: result },
-  ];
+  const intResult = intOctals.join("") || "0";
+
+  // 2. Fractional Part
+  let fracResult = "";
+  let fracGroups: string[] = [];
+  let fracOctals: string[] = [];
+  if (fracPart) {
+    let fracPadded = fracPart;
+    while (fracPadded.length % 3 !== 0) fracPadded = fracPadded + "0";
+    for (let i = 0; i < fracPadded.length; i += 3) {
+      const group = fracPadded.substring(i, i + 3);
+      fracGroups.push(group);
+      fracOctals.push(String(parseInt(group, 2)));
+    }
+    fracResult = fracOctals.join("");
+  }
+
+  const result = fracResult ? `${intResult}.${fracResult}` : intResult;
+  steps.push({ description: `Split into integer and fractional: ${intPart}${fracPart ? ` | .${fracPart}` : ""}` });
+  steps.push({ description: `Group integer Part from right in 3s: ${intGroups.join(" | ")}` });
+  if (fracPart) {
+    steps.push({ description: `Group fractional Part from left in 3s: ${fracGroups.join(" | ")}` });
+  }
+  steps.push({ description: `Convert each group: ${[...intOctals, ...fracOctals].join(", ")}` });
+  steps.push({ description: `Result`, highlight: result });
   return { steps, result };
 }
 
 function octalToBinarySteps(octal: string): { steps: ConversionStep[]; result: string } {
-  const digits = octal.split("");
-  const binaryGroups = digits.map((d) => parseInt(d, 10).toString(2).padStart(3, "0"));
-  const result = binaryGroups.join("").replace(/^0+/, "") || "0";
+  const [intPart, fracPart] = octal.split(".");
+  const expand = (s: string) => s.split("").map((d) => parseInt(d, 10).toString(2).padStart(3, "0"));
+
+  const intGroups = expand(intPart);
+  const intBinary = intGroups.join("").replace(/^0+(?!$)/, "") || "0";
+
+  let fracBinary = "";
+  let fracGroups: string[] = [];
+  if (fracPart) {
+    fracGroups = expand(fracPart);
+    fracBinary = fracGroups.join("");
+  }
+
+  const result = fracBinary ? `${intBinary}.${fracBinary}` : intBinary;
   const steps: ConversionStep[] = [
     { description: `Expand each octal digit to 3 binary bits:` },
-    { description: digits.map((d, i) => `${d} → ${binaryGroups[i]}`).join("  |  ") },
-    { description: `Combined`, highlight: result },
+    { description: `Integer: ${intPart.split("").map((d, i) => `${d}→${intGroups[i]}`).join(" | ")}` },
   ];
+  if (fracPart) {
+    steps.push({ description: `Fractional: ${fracPart.split("").map((d, i) => `${d}→${fracGroups[i]}`).join(" | ")}` });
+  }
+  steps.push({ description: `Combined`, highlight: result });
   return { steps, result };
 }
 
 // Binary ↔ Hex grouping
 function binaryToHexSteps(binary: string): { steps: ConversionStep[]; result: string } {
-  let padded = binary;
-  while (padded.length % 4 !== 0) padded = "0" + padded;
-  const groups: string[] = [];
-  const hexDigits: string[] = [];
-  for (let i = 0; i < padded.length; i += 4) {
-    const group = padded.substring(i, i + 4);
-    groups.push(group);
-    hexDigits.push(digitChar(parseInt(group, 2)));
+  const [intPart, fracPart] = binary.split(".");
+  const steps: ConversionStep[] = [];
+
+  // 1. Integer Part
+  let intPadded = intPart;
+  while (intPadded.length % 4 !== 0) intPadded = "0" + intPadded;
+  const intGroups: string[] = [];
+  const intHexs: string[] = [];
+  for (let i = 0; i < intPadded.length; i += 4) {
+    const group = intPadded.substring(i, i + 4);
+    intGroups.push(group);
+    intHexs.push(digitChar(parseInt(group, 2)));
   }
-  const result = hexDigits.join("");
-  const steps: ConversionStep[] = [
-    { description: `Pad binary to multiple of 4 bits: ${padded}` },
-    { description: `Group from right in 4s: ${groups.join(" | ")}` },
-    { description: `Convert each group: ${groups.map((g, i) => `${g}→${hexDigits[i]}`).join(", ")}` },
-    { description: `Result`, highlight: result },
-  ];
+  const intResult = intHexs.join("") || "0";
+
+  // 2. Fractional Part
+  let fracResult = "";
+  let fracGroups: string[] = [];
+  let fracHexs: string[] = [];
+  if (fracPart) {
+    let fracPadded = fracPart;
+    while (fracPadded.length % 4 !== 0) fracPadded = fracPadded + "0";
+    for (let i = 0; i < fracPadded.length; i += 4) {
+      const group = fracPadded.substring(i, i + 4);
+      fracGroups.push(group);
+      fracHexs.push(digitChar(parseInt(group, 2)));
+    }
+    fracResult = fracHexs.join("");
+  }
+
+  const result = fracResult ? `${intResult}.${fracResult}` : intResult;
+  steps.push({ description: `Split into integer and fractional: ${intPart}${fracPart ? ` | .${fracPart}` : ""}` });
+  steps.push({ description: `Group integer Part from right in 4s: ${intGroups.join(" | ")}` });
+  if (fracPart) {
+    steps.push({ description: `Group fractional Part from left in 4s: ${fracGroups.join(" | ")}` });
+  }
+  steps.push({ description: `Convert each group: ${[...intHexs, ...fracHexs].join(", ")}` });
+  steps.push({ description: `Result`, highlight: result });
   return { steps, result };
 }
 
 function hexToBinarySteps(hex: string): { steps: ConversionStep[]; result: string } {
-  const digits = hex.toUpperCase().split("");
-  const binaryGroups = digits.map((d) => digitValue(d).toString(2).padStart(4, "0"));
-  const result = binaryGroups.join("").replace(/^0+/, "") || "0";
+  const [intPart, fracPart] = hex.split(".");
+  const expand = (s: string) => s.toUpperCase().split("").map((d) => digitValue(d).toString(2).padStart(4, "0"));
+
+  const intGroups = expand(intPart);
+  const intBinary = intGroups.join("").replace(/^0+(?!$)/, "") || "0";
+
+  let fracBinary = "";
+  let fracGroups: string[] = [];
+  if (fracPart) {
+    fracGroups = expand(fracPart);
+    fracBinary = fracGroups.join("");
+  }
+
+  const result = fracBinary ? `${intBinary}.${fracBinary}` : intBinary;
   const steps: ConversionStep[] = [
     { description: `Expand each hex digit to 4 binary bits:` },
-    { description: digits.map((d, i) => `${d} → ${binaryGroups[i]}`).join("  |  ") },
-    { description: `Combined`, highlight: result },
+    { description: `Integer: ${intPart.split("").map((d, i) => `${d}→${intGroups[i]}`).join(" | ")}` },
   ];
+  if (fracPart) {
+    steps.push({ description: `Fractional: ${fracPart.split("").map((d, i) => `${d}→${fracGroups[i]}`).join(" | ")}` });
+  }
+  steps.push({ description: `Combined`, highlight: result });
   return { steps, result };
 }
 
@@ -320,63 +440,63 @@ function makePairs(): ConversionPair[] {
   return [
     {
       from: "decimal", to: "binary", label: "Decimal → Binary",
-      placeholder: "e.g. 25",
-      convert: (v) => { const n = parseInt(v, 10); return isNaN(n) || n < 0 ? null : decimalToBaseSteps(n, 2, "Binary"); },
+      placeholder: "e.g. 25.5",
+      convert: (v) => { const n = Number(v); return isNaN(n) || n < 0 ? null : decimalToBaseSteps(n, 2, "Binary"); },
     },
     {
       from: "decimal", to: "octal", label: "Decimal → Octal",
-      placeholder: "e.g. 100",
-      convert: (v) => { const n = parseInt(v, 10); return isNaN(n) || n < 0 ? null : decimalToBaseSteps(n, 8, "Octal"); },
+      placeholder: "e.g. 100.25",
+      convert: (v) => { const n = Number(v); return isNaN(n) || n < 0 ? null : decimalToBaseSteps(n, 8, "Octal"); },
     },
     {
       from: "decimal", to: "hexadecimal", label: "Decimal → Hexadecimal",
-      placeholder: "e.g. 255",
-      convert: (v) => { const n = parseInt(v, 10); return isNaN(n) || n < 0 ? null : decimalToBaseSteps(n, 16, "Hex"); },
+      placeholder: "e.g. 255.75",
+      convert: (v) => { const n = Number(v); return isNaN(n) || n < 0 ? null : decimalToBaseSteps(n, 16, "Hex"); },
     },
     {
       from: "binary", to: "decimal", label: "Binary → Decimal",
-      placeholder: "e.g. 11001",
-      convert: (v) => /^[01]+$/.test(v) ? baseToDecimalSteps(v, 2, "Binary") : null,
+      placeholder: "e.g. 11001.101",
+      convert: (v) => /^[01.]+$/.test(v) ? baseToDecimalSteps(v, 2, "Binary") : null,
     },
     {
       from: "binary", to: "octal", label: "Binary → Octal",
-      placeholder: "e.g. 11001",
-      convert: (v) => /^[01]+$/.test(v) ? binaryToOctalSteps(v) : null,
+      placeholder: "e.g. 11001.101",
+      convert: (v) => /^[01.]+$/.test(v) ? binaryToOctalSteps(v) : null,
     },
     {
       from: "binary", to: "hexadecimal", label: "Binary → Hexadecimal",
-      placeholder: "e.g. 11111111",
-      convert: (v) => /^[01]+$/.test(v) ? binaryToHexSteps(v) : null,
+      placeholder: "e.g. 11111111.101",
+      convert: (v) => /^[01.]+$/.test(v) ? binaryToHexSteps(v) : null,
     },
     {
       from: "octal", to: "decimal", label: "Octal → Decimal",
-      placeholder: "e.g. 31",
-      convert: (v) => /^[0-7]+$/.test(v) ? baseToDecimalSteps(v, 8, "Octal") : null,
+      placeholder: "e.g. 31.4",
+      convert: (v) => /^[0-7.]+$/.test(v) ? baseToDecimalSteps(v, 8, "Octal") : null,
     },
     {
       from: "octal", to: "binary", label: "Octal → Binary",
-      placeholder: "e.g. 17",
-      convert: (v) => /^[0-7]+$/.test(v) ? octalToBinarySteps(v) : null,
+      placeholder: "e.g. 17.2",
+      convert: (v) => /^[0-7.]+$/.test(v) ? octalToBinarySteps(v) : null,
     },
     {
       from: "octal", to: "hexadecimal", label: "Octal → Hexadecimal",
-      placeholder: "e.g. 377",
-      convert: (v) => /^[0-7]+$/.test(v) ? octalToHexSteps(v) : null,
+      placeholder: "e.g. 377.5",
+      convert: (v) => /^[0-7.]+$/.test(v) ? octalToHexSteps(v) : null,
     },
     {
       from: "hexadecimal", to: "decimal", label: "Hexadecimal → Decimal",
-      placeholder: "e.g. FF",
-      convert: (v) => /^[0-9A-Fa-f]+$/.test(v) ? baseToDecimalSteps(v, 16, "Hex") : null,
+      placeholder: "e.g. FF.A",
+      convert: (v) => /^[0-9A-Fa-f.]+$/.test(v) ? baseToDecimalSteps(v, 16, "Hex") : null,
     },
     {
       from: "hexadecimal", to: "binary", label: "Hexadecimal → Binary",
-      placeholder: "e.g. 1A3",
-      convert: (v) => /^[0-9A-Fa-f]+$/.test(v) ? hexToBinarySteps(v) : null,
+      placeholder: "e.g. 1A3.C",
+      convert: (v) => /^[0-9A-Fa-f.]+$/.test(v) ? hexToBinarySteps(v) : null,
     },
     {
       from: "hexadecimal", to: "octal", label: "Hexadecimal → Octal",
-      placeholder: "e.g. FF",
-      convert: (v) => /^[0-9A-Fa-f]+$/.test(v) ? hexToOctalSteps(v) : null,
+      placeholder: "e.g. FF.8",
+      convert: (v) => /^[0-9A-Fa-f.]+$/.test(v) ? hexToOctalSteps(v) : null,
     },
   ];
 }
@@ -407,8 +527,12 @@ function ConversionVisualizer({ pair }: { pair: ConversionPair }) {
   const [error, setError] = useState("");
 
   const handleConvert = () => {
-    if (!inputVal.trim()) { setError("Please enter a number"); setResult(null); return; }
-    const r = pair.convert(inputVal.trim());
+    const val = inputVal.trim();
+    if (!val) { setError("Please enter a number"); setResult(null); return; }
+    if (val.endsWith(".")) { setError("Invalid format: Cannot end with a decimal point."); setResult(null); return; }
+    if (val.split(".").length > 2) { setError("Invalid format: Cannot contain multiple decimal points."); setResult(null); return; }
+
+    const r = pair.convert(val);
     if (!r) { setError(`Invalid ${numberSystems[pair.from].name.split(" ")[0]} number`); setResult(null); return; }
     setError("");
     setResult(r);
@@ -476,11 +600,10 @@ function ConversionVisualizer({ pair }: { pair: ConversionPair }) {
                     initial={{ opacity: 0, x: -15 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, delay: i * 0.1 }}
-                    className={`p-3 rounded-lg font-mono text-sm ${
-                      step.highlight
-                        ? "bg-primary/10 border border-primary/30"
-                        : "bg-muted"
-                    }`}
+                    className={`p-3 rounded-lg font-mono text-sm ${step.highlight
+                      ? "bg-primary/10 border border-primary/30"
+                      : "bg-muted"
+                      }`}
                   >
                     <span>{step.description}</span>
                     {step.highlight && (
@@ -738,11 +861,10 @@ export function NumberSystemsSection() {
                       {allConversions.map((conv) => (
                         <div
                           key={conv.base}
-                          className={`p-4 rounded-xl transition-all ${
-                            conv.base === toBase
-                              ? "bg-primary text-primary-foreground shadow-glow"
-                              : "bg-muted"
-                          }`}
+                          className={`p-4 rounded-xl transition-all ${conv.base === toBase
+                            ? "bg-primary text-primary-foreground shadow-glow"
+                            : "bg-muted"
+                            }`}
                         >
                           <p className="text-xs font-medium opacity-80 mb-1">
                             {numberSystems[conv.base].name.split(" ")[0]}
