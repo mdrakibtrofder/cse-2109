@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 const navItems = [
   { label: "Introduction", href: "#introduction" },
   { label: "Number Systems", href: "#number-systems" },
+  { label: "Binary Arithmetic", href: "#binary-arithmetic" },
   { label: "Codes & Organization", href: "#codes" },
   { label: "Hardware", href: "#hardware" },
   { label: "I/O Devices", href: "#io-devices" },
@@ -29,9 +30,8 @@ export function Navigation() {
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? "glass-card shadow-card" : "bg-transparent"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "glass-card shadow-card" : "bg-transparent"
+        }`}
     >
       <div className="container-custom flex items-center justify-between py-4 px-4 md:px-8">
         <a href="#" className="flex items-center gap-2 group">
