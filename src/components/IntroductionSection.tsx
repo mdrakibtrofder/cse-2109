@@ -379,20 +379,7 @@ export function IntroductionSection() {
             </p>
           </div>
 
-          {/* GIGO Callout */}
-          <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-5 flex items-start gap-4">
-            <AlertTriangle className="w-8 h-8 text-destructive shrink-0 mt-0.5" />
-            <div>
-              <p className="font-bold text-destructive mb-1">
-                GIGO — Garbage In, Garbage Out
-              </p>
-              <p className="text-sm text-muted-foreground">
-                If incorrect or poor-quality data is entered into a computer, the
-                output will also be incorrect — no matter how powerful the machine.
-                The computer does not verify if the input makes sense.
-              </p>
-            </div>
-          </div>
+
         </motion.div>
 
         {/* ──── 1.2 What is a Program? ──── */}
@@ -552,16 +539,7 @@ export function IntroductionSection() {
             ))}
           </div>
 
-          {/* GIGO reminder */}
-          <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-5 text-center max-w-xl mx-auto">
-            <p className="font-bold text-destructive mb-1">
-              Remember: GIGO Principle
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Wrong input → Wrong output. A computer's accuracy is only as good as
-              the data and instructions it receives.
-            </p>
-          </div>
+
         </motion.div>
 
         {/* ──── Invention & Brief History ──── */}
