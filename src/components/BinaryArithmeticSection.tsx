@@ -515,39 +515,164 @@ const MultiplicationVisualizer = ({ a, b }: { a: string, b: string }) => {
 
 const DivisionVisualizer = ({ a, b }: { a: string, b: string }) => {
     const data = getBinaryDivisionSteps(a, b);
+    const [stepIdx, setStepIdx] = useState(-1);
+    const [isPlaying, setIsPlaying] = useState(false);
+
+    useEffect(() => {
+        let timer: any;
+        if (isPlaying && "steps" in data && stepIdx < data.steps.length - 1) {
+            timer = setTimeout(() => setStepIdx(s => s + 1), 1500);
+        } else {
+            setIsPlaying(false);
+        }
+        return () => clearTimeout(timer);
+    }, [isPlaying, stepIdx, data]);
+
     if ("error" in data) return <div className="text-destructive p-4 bg-destructive/10 rounded-lg">Error: {data.error}</div>;
 
+    const currentStep = stepIdx >= 0 ? data.steps[stepIdx] : null;
+    const reset = () => { setStepIdx(-1); setIsPlaying(false); };
+
     return (
-        <div className="space-y-6 overflow-x-auto">
-            <div className="relative font-mono text-lg md:text-xl p-8 bg-card rounded-2xl border border-border shadow-inner max-w-2xl mx-auto">
-                <div className="flex items-start">
-                    <div className="text-muted-foreground mr-4 h-full border-r-2 border-foreground pr-4">
-                        {b}
-                    </div>
-                    <div className="flex flex-col">
-                        <div className="border-b-2 border-foreground pb-1 px-4 mb-2 flex items-center gap-4">
-                            <span className="text-secondary font-black text-2xl">{data.quotient}</span>
-                            <Badge variant="secondary" className="text-[10px]">QUOTIENT</Badge>
+        <div className="space-y-8">
+            <div className="flex justify-between items-center">
+                <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => setStepIdx(s => Math.min(s + 1, data.steps.length - 1))} disabled={stepIdx >= data.steps.length - 1}>
+                        <ChevronRight className="w-4 h-4 mr-1" /> Next Step
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => setIsPlaying(!isPlaying)}>
+                        {isPlaying ? "Pause" : "Auto Play"}
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={reset}>
+                        <RotateCcw className="w-4 h-4" />
+                    </Button>
+                </div>
+                <div className="text-xs font-mono font-bold px-3 py-1 bg-muted rounded-full uppercase tracking-widest">
+                    Step {stepIdx + 1} of {data.steps.length}
+                </div>
+            </div>
+
+            <div className="relative font-mono text-xl md:text-2xl p-8 bg-card rounded-3xl border border-border shadow-2xl max-w-2xl mx-auto overflow-x-auto">
+                <div className="inline-flex flex-col items-start min-w-full lg:min-w-0">
+                    {/* Quotient Row */}
+                    <div className="flex mb-2 ml-[calc(var(--divisor-width)+1.5rem)]">
+                        <div className="flex items-center relative">
+                            {/* Placeholder to align with dividend start */}
+                            <AnimatePresence>
+                                {stepIdx >= 0 && (
+                                    <div className="flex">
+                                        {data.steps.slice(0, stepIdx + 1).map((s, idx) => (
+                                            <motion.span
+                                                key={idx}
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                className="w-8 text-center text-secondary font-black"
+                                            >
+                                                {s.quotientBit}
+                                            </motion.span>
+                                        ))}
+                                    </div>
+                                )}
+                            </AnimatePresence>
+                            <Badge variant="outline" className="absolute -top-6 left-0 text-[8px] opacity-50">QUOTIENT</Badge>
                         </div>
-                        <div className="px-4">
-                            <div className="mb-2">{a} <span className="text-xs opacity-50 ml-4">(Dividend)</span></div>
-                            {data.steps.map((step, i) => (
-                                <div key={i} className="mt-2 ml-2 border-l-2 border-primary/20 pl-4 py-1">
-                                    {step.subtract && (
-                                        <>
-                                            <div className="text-red-500 font-bold">-{step.subtract}</div>
-                                            <div className="border-t border-muted-foreground w-16 my-1"></div>
-                                        </>
-                                    )}
-                                    <div className="text-primary font-bold">{step.newRemainder}</div>
-                                </div>
-                            ))}
+                    </div>
+
+                    <div className="flex items-start">
+                        {/* Divisor and Bracket */}
+                        <div
+                            className="flex items-center text-muted-foreground pr-4 border-r-2 border-foreground h-10 select-none"
+                            style={{ "--divisor-width": `${b.length * 2}rem` } as any}
+                        >
+                            {b}
+                        </div>
+
+                        {/* Dividend area */}
+                        <div className="flex flex-col pl-2">
+                            {/* Dividend */}
+                            <div className="flex mb-4 relative">
+                                {a.split("").map((bit, idx) => (
+                                    <span key={idx} className="w-8 text-center">{bit}</span>
+                                ))}
+                                <Badge variant="outline" className="absolute -top-6 left-0 text-[8px] opacity-50">DIVIDEND</Badge>
+                            </div>
+
+                            {/* Long Division Steps */}
+                            <div className="space-y-1">
+                                {data.steps.slice(0, stepIdx + 1).map((step, i) => (
+                                    <motion.div
+                                        key={i}
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        className="flex flex-col"
+                                    >
+                                        {step.subtract && (
+                                            <div className="text-destructive/60 font-medium">
+                                                <div className="flex" style={{ marginLeft: `${(step.index - b.length + 1) * 2}rem` }}>
+                                                    {b.split("").map((bit, idx) => (
+                                                        <span key={idx} className="w-8 text-center">{bit}</span>
+                                                    ))}
+                                                </div>
+                                                <div className="border-t border-muted-foreground/30 w-full my-1"></div>
+                                            </div>
+                                        )}
+                                        <div className="text-primary font-bold flex">
+                                            {/* Align remainder with the bits above */}
+                                            <div className="flex" style={{ marginLeft: `${(step.index - step.newRemainder.length + 1) * 2}rem` }}>
+                                                {step.newRemainder.split("").map((bit, idx) => (
+                                                    <span key={idx} className="w-8 text-center">{bit}</span>
+                                                ))}
+                                                {/* Show the bit being brought down */}
+                                                {i < data.steps.length - 1 && stepIdx > i && (
+                                                    <span className="w-8 text-center text-muted-foreground/30">{a[step.index + 1]}</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div className="mt-8 pt-4 border-t border-border flex justify-between gap-4">
-                    <div className="text-sm">Remainder: <span className="font-bold text-orange-500 text-lg">{data.finalRemainder}</span></div>
-                    <div className="text-sm">Quotient: <span className="font-bold text-secondary text-lg">{data.quotient}</span></div>
+
+                <div className="mt-12 pt-6 border-t border-border flex flex-col sm:flex-row justify-between gap-6">
+                    <div className="space-y-1">
+                        <p className="text-[10px] uppercase font-bold text-muted-foreground opacity-60">Final Result</p>
+                        <div className="flex gap-4">
+                            <div className="text-sm">Quotient: <span className="font-bold text-secondary text-xl">{data.quotient}</span></div>
+                            <div className="text-sm">Remainder: <span className="font-bold text-orange-500 text-xl">{data.finalRemainder}</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="glass-card p-6 rounded-2xl border border-primary/10 bg-primary/5">
+                <h5 className="text-sm font-bold mb-3 flex items-center gap-2 text-primary uppercase tracking-widest">
+                    <Play className="w-4 h-4" /> Division Step Logic
+                </h5>
+                <div className="text-sm leading-relaxed min-h-[4rem]">
+                    {currentStep ? (
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} key={stepIdx} className="space-y-2">
+                            <p>
+                                Column {currentStep.index + 1}: Bring down '{a[currentStep.index]}' to get <span className="font-bold">{currentStep.dividendPart}</span>.
+                            </p>
+                            <p>
+                                {parseInt(currentStep.dividendPart, 2) >= parseInt(b, 2) ? (
+                                    <>
+                                        Compare: {currentStep.dividendPart} ≥ {b}? <span className="text-green-500 font-bold">YES</span>.
+                                        Quotient bit is <span className="text-secondary font-bold">1</span>. Subtract {b}.
+                                    </>
+                                ) : (
+                                    <>
+                                        Compare: {currentStep.dividendPart} ≥ {b}? <span className="text-destructive font-bold">NO</span>.
+                                        Quotient bit is <span className="text-secondary font-bold">0</span>.
+                                    </>
+                                )}
+                            </p>
+                        </motion.div>
+                    ) : (
+                        "Ready to start. Click 'Next Step' to visualize the long division process."
+                    )}
                 </div>
             </div>
         </div>
