@@ -22,6 +22,9 @@ import {
   ArrowRight,
   ChevronDown,
   ChevronUp,
+  Database,
+  Share2,
+  Terminal,
 } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 
@@ -69,74 +72,84 @@ const generations = [
 
 const classifications = [
   {
-    type: "By Purpose",
+    type: "Based on Purpose",
     items: [
       {
-        name: "General Purpose",
-        desc: "Designed to perform a wide variety of tasks — word processing, gaming, web browsing, programming, etc.",
+        name: "Special-purpose",
+        desc: "Designed for a specific application (also known as a dedicated computer) with instructions often permanently programmed to perform one major function, like traffic light controllers.",
       },
       {
-        name: "Special Purpose",
-        desc: "Built for one dedicated task — ATMs, traffic light controllers, GPS devices, medical monitoring systems.",
+        name: "General-purpose",
+        desc: "Designed to handle a variety of tasks using the stored-program concept, where different programs can be loaded into memory to perform different functions.",
       },
     ],
   },
   {
-    type: "By Size",
+    type: "Based on Signals",
     items: [
-      { name: "Supercomputers", desc: "Fastest, used for scientific simulations" },
-      { name: "Mainframes", desc: "Handle massive data for banks & airlines" },
-      { name: "Minicomputers", desc: "Mid-range, multi-user systems" },
-      { name: "Microcomputers", desc: "Personal computers — desktops, laptops" },
-      { name: "Embedded Systems", desc: "Built into appliances & vehicles" },
+      {
+        name: "Analog",
+        desc: "Represents quantities through physical analogies (mechanical or electrical parameters) like distance, temperature, or pressure; examples include a speedometer or thermometer.",
+      },
+      {
+        name: "Digital",
+        desc: "These computers use internal signaling to process data using number systems (usually binary) to represent information. Most modern computers are digital.",
+      },
     ],
   },
   {
-    type: "By Data Handling",
+    type: "Based on Capacity",
     items: [
-      { name: "Digital", desc: "Processes discrete binary data (0s and 1s)" },
-      { name: "Analog", desc: "Processes continuous data (temperature, voltage)" },
-      { name: "Hybrid", desc: "Combination of analog and digital capabilities" },
+      {
+        name: "Supercomputers",
+        desc: "The fastest and most powerful type of computer. They are used for complex scientific simulations, weather forecasting, and nuclear research.",
+      },
+      {
+        name: "Mainframes",
+        desc: "Large and expensive systems designed to handle massive data processing for organizations like banks and airlines.",
+      },
+      {
+        name: "Minicomputers",
+        desc: "Mid-range, multi-user systems that are smaller and less powerful than mainframes but more capable than personal computers.",
+      },
+      {
+        name: "Microcomputers",
+        desc: "Personal computers (desktops, laptops) designed for individual use. They are the most common type of computer today.",
+      },
     ],
   },
 ];
 
 const importanceCards = [
   {
-    icon: Zap,
-    title: "Speed",
-    description:
-      "Performs billions of calculations per second. Tasks that take humans years can be done in seconds.",
+    icon: Database,
+    title: "Volume of data",
+    description: "Computers are suited to handling large volumes of data efficiently.",
   },
   {
     icon: Target,
     title: "Accuracy",
-    description:
-      "Extremely high degree of accuracy and consistency when given correct instructions (GIGO applies).",
-  },
-  {
-    icon: HardDrive,
-    title: "Storage",
-    description:
-      "Can store billions of books worth of data in a pocket-sized chip. Retrieval is instant.",
+    description: "They ensure a high degree of accuracy and reliable consistency.",
   },
   {
     icon: Repeat,
     title: "Repetitiveness",
-    description:
-      "Repeats the same task millions of times without fatigue, boredom, or degradation in quality.",
+    description: "Processing cycles that repeat time and time again are ideally suited to computers.",
   },
   {
     icon: Brain,
     title: "Complexity",
-    description:
-      "Handles extremely complex calculations — weather forecasting, DNA analysis, financial modeling.",
+    description: "Computers can perform complex calculations and provide answers after running the program.",
   },
   {
-    icon: Combine,
-    title: "Combination",
-    description:
-      "Combines multiple criteria for different procedures simultaneously, enabling multitasking.",
+    icon: Zap,
+    title: "Speed",
+    description: "They work at very high speeds, allowing them to respond quickly to given situations.",
+  },
+  {
+    icon: Share2,
+    title: "Common data",
+    description: "One item of data can be used for different computer procedures.",
   },
 ];
 
@@ -173,27 +186,25 @@ const computerComponents = [
     title: "Hardware",
     color: "text-primary",
     bg: "bg-primary/10",
-    description: "Physical, tangible components you can touch",
+    description: "Refers to machines or physical equipment that performs the basic functions of the data processing cycle, such as the computer itself and its connected devices.",
     examples: [
       "Motherboard",
       "CPU (Processor)",
       "RAM",
       "Hard Disk / SSD",
-      "Monitor, Keyboard, Mouse",
-      "Power Supply Unit (PSU)",
+      "Peripherals (Monitor, Keyboard)",
     ],
   },
   {
-    icon: Cpu,
+    icon: Terminal,
     title: "Software",
     color: "text-secondary",
     bg: "bg-secondary/10",
-    description: "Programs and instructions that control hardware",
+    description: "These are the programs (sequences of instructions) that direct the computer to perform tasks, categorized into system software and application software.",
     examples: [
       "System Software (OS, Drivers)",
-      "Application Software (Word, Excel)",
-      "Utility Programs (Antivirus)",
-      "Programming Languages",
+      "Application Software",
+      "Utility Programs",
     ],
   },
   {
@@ -201,13 +212,11 @@ const computerComponents = [
     title: "Humanware",
     color: "text-accent",
     bg: "bg-accent/10",
-    description: "People who interact with and operate the system",
+    description: "Refers to the people who design, program, and operate the computer, such as systems analysts, programmers, and computer operators.",
     examples: [
-      "System Administrators",
-      "Software Developers",
-      "End Users",
-      "Maintenance Technicians",
-      "Data Entry Operators",
+      "Systems Analysts",
+      "Programmers",
+      "Computer Operators",
     ],
   },
   {
@@ -215,13 +224,11 @@ const computerComponents = [
     title: "Operational Procedures",
     color: "text-primary",
     bg: "bg-primary/10",
-    description: "Rules and workflows for using the system",
+    description: "An extensive and clearly defined set of procedures for performing essential functions like entering data, processing jobs, and handling malfunctions.",
     examples: [
-      "Login & Authentication Protocols",
-      "Backup Schedules",
-      "Software Update Workflows",
-      "Troubleshooting Guides",
-      "Safety & Security Policies",
+      "Data Entry Procedures",
+      "Processing Workflows",
+      "Malfunction Handling",
     ],
   },
 ];
@@ -267,9 +274,8 @@ function IPOCycle() {
               onClick={() =>
                 setExpanded(expanded === stage.key ? null : stage.key)
               }
-              className={`${stage.color} text-white font-bold px-8 py-5 rounded-2xl shadow-lg cursor-pointer transition-all ${
-                expanded === stage.key ? "ring-4 ring-ring" : ""
-              }`}
+              className={`${stage.color} text-white font-bold px-8 py-5 rounded-2xl shadow-lg cursor-pointer transition-all ${expanded === stage.key ? "ring-4 ring-ring" : ""
+                }`}
             >
               {stage.label}
             </motion.button>
@@ -360,7 +366,7 @@ export function IntroductionSection() {
             <div className="p-3 rounded-xl bg-primary/10">
               <Cpu className="w-6 h-6 text-primary" />
             </div>
-            What is a Computer?
+            1.1 What is a Computer?
           </h3>
 
           <div className="bg-card rounded-2xl p-8 shadow-card border-l-4 border-primary mb-4">
@@ -389,7 +395,31 @@ export function IntroductionSection() {
           </div>
         </motion.div>
 
-        {/* ──── 1.2 Basic Functions — IPO Cycle ──── */}
+        {/* ──── 1.2 What is a Program? ──── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.12 }}
+          className="mb-16"
+        >
+          <h3 className="heading-3 mb-6 flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-orange-500/10">
+              <Terminal className="w-6 h-6 text-orange-500" />
+            </div>
+            1.2 What is a Program?
+          </h3>
+
+          <div className="bg-card rounded-2xl p-8 shadow-card border-l-4 border-orange-500">
+            <p className="text-lg leading-relaxed text-foreground">
+              "A <strong>program</strong> is a set of instructions that directs a
+              computer's actions. It can also be defined as a{" "}
+              <strong>sequence of instructions</strong> which directs a computer
+              to perform certain functions."
+            </p>
+          </div>
+        </motion.div>
+
+        {/* ──── 1.3 Basic Functions — IPO Cycle ──── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -400,12 +430,12 @@ export function IntroductionSection() {
             <div className="p-3 rounded-xl bg-secondary/10">
               <ArrowRight className="w-6 h-6 text-secondary" />
             </div>
-            Basic Functions of Computer (IPO Cycle)
+            1.3 Basic Functions of Computer (IPO Cycle)
           </h3>
           <IPOCycle />
         </motion.div>
 
-        {/* ──── 1.3 Components of a Computer System ──── */}
+        {/* ──── 1.4 Components of a Computer System ──── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -416,7 +446,7 @@ export function IntroductionSection() {
             <div className="p-3 rounded-xl bg-accent/10">
               <Layers className="w-6 h-6 text-accent" />
             </div>
-            Components of a Computer System
+            1.4 Components of a Computer System
           </h3>
 
           <div className="grid sm:grid-cols-2 gap-6">
@@ -453,7 +483,7 @@ export function IntroductionSection() {
           </div>
         </motion.div>
 
-        {/* ──── 1.4 Importance of Computers ──── */}
+        {/* ──── 1.5 Importance of Computers ──── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -464,7 +494,7 @@ export function IntroductionSection() {
             <div className="p-3 rounded-xl bg-primary/10">
               <Zap className="w-6 h-6 text-primary" />
             </div>
-            Importance of Computers
+            1.5 Importance of Computers
           </h3>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -499,7 +529,7 @@ export function IntroductionSection() {
             <div className="p-3 rounded-xl bg-destructive/10">
               <AlertTriangle className="w-6 h-6 text-destructive" />
             </div>
-            Limitations of Computers
+            1.6 Limitations of Computers
           </h3>
 
           <div className="grid sm:grid-cols-2 gap-4 mb-6">
@@ -626,7 +656,7 @@ export function IntroductionSection() {
           </div>
         </motion.div>
 
-        {/* ──── 1.6 Classification ──── */}
+        {/* ──── 1.7 Classification ──── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -636,7 +666,7 @@ export function IntroductionSection() {
             <div className="p-3 rounded-xl bg-primary/10">
               <Layers className="w-6 h-6 text-primary" />
             </div>
-            <h3 className="heading-3">Classification & Types of Computers</h3>
+            <h3 className="heading-3">1.7 Classification & Types of Computers</h3>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
